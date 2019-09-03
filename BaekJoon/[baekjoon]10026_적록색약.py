@@ -1,53 +1,95 @@
 import sys
-sys.stdin = open("적록색약.txt", "r")
-from copy import deepcopy
-
+import time
+sys.stdin = open('10952.txt', 'r')
+start = time.time()
 
 N = int(input())
 colorlist = [list(input()) for _ in range(N)]
-colorlist1 = [["" for _ in range(N)] for _ in range(N)]
-for i in range(N):
-    for j in range(N):
-        if colorlist[i][j] == 'R' or colorlist[i][j] == 'G':
-            colorlist1[i][j] = 'R'
-        else:
-            colorlist1[i][j] = colorlist[i][j]
-visited = [[False for _ in range(N)] for _ in range(N)]
-visited1 = deepcopy(visited)
-dy = [-1, 1, 0, 0]
-dx = [0, 0, -1, 1]
+
+visited1 = [[0 for _ in range(N)] for _ in range(N)]
+visited2 = [[0 for _ in range(N)] for _ in range(N)]
+
+dx = [-1, 1, 0, 0]
+dy = [0, 0, -1, 1]
+
 count1 = 0
+color1 = ''
 count2 = 0
+color2 = ''
 
-def DFS1(i, j, color):
+stacklist1 = []
+stacklist2 = []
 
-    for d in range(4):
-        now_i = dy[d] + i
-        now_j = dx[d] + j
-        if 0 <= now_i <N and 0 <=now_j < N and not visited[now_i][now_j] and color == colorlist[now_i][now_j]:
-            visited[now_i][now_j] = True
-            DFS1(now_i, now_j, color)
+visited1[0][0] = 1
+visited2[0][0] = 1
 
-def DFS2(i, j, color):
-    for d in range(4):
-        now_i = dy[d] + i
-        now_j = dx[d] + j
-        if 0 <= now_i <N and 0 <=now_j < N and not visited1[now_i][now_j] and color == colorlist1[now_i][now_j]:
-            visited1[now_i][now_j] = True
-            DFS2(now_i, now_j, color)
+stacklist1.append([0, 0])
+stacklist2.append([0, 0])
+
+color1 = colorlist[0][0]
+color2 = colorlist[0][0]
+
+while len(stacklist1) != 0:
+    # R != G
+    while True:
+        nowpoint = stacklist1.pop(0)
+        x = nowpoint[0]
+        y = nowpoint[1]
+        for d in range(4):
+            if 0 <= x + dx[d] < N and 0 <= y + dy[d] < N:
+                testx = x+dx[d]
+                testy = y+dy[d]
+                if visited1[testx][testy] == 0 and colorlist[testx][testy] == color1:
+                    stacklist1.append([testx, testy])
+                    visited1[testx][testy] = 1
+        if len(stacklist1) == 0:
+            count1 += 1
+            break
+
+    for pointx in range(N):
+        for pointy in range(N):
+            if visited1[pointx][pointy] == 0:
+                stacklist1.append([pointx, pointy])
+                visited1[pointx][pointy] = 1
+                color1 = colorlist[pointx][pointy]
+                break
+        if len(stacklist1) != 0:
+            break
 
 for i in range(N):
     for j in range(N):
-        if not visited[i][j]:
-            DFS1(i, j, colorlist[i][j])
-            count1 += 1
-        if not visited1[i][j]:
-            DFS2(i, j, colorlist1[i][j])
+        if colorlist[i][j] == 'G':
+            colorlist[i][j] = 'R'
+if color2 == 'G':
+    color2 = 'R'
+
+while len(stacklist2):
+    # R == G
+    while True:
+        nowpoint = stacklist2.pop(0)
+        x = nowpoint[0]
+        y = nowpoint[1]
+        for d in range(4):
+            if 0 <= x + dx[d] < N and 0 <= y + dy[d] < N:
+                nextx = x + dx[d]
+                nexty = y + dy[d]
+                if visited2[nextx][nexty] == 0 and colorlist[nextx][nexty] == color2:
+                    stacklist2.append([nextx, nexty])
+                    visited2[nextx][nexty] = 1
+        if len(stacklist2) == 0:
             count2 += 1
-
+            break
+    
+    for pointx in range(N):
+        for pointy in range(N):
+            if visited2[pointx][pointy] == 0:
+                stacklist2.append([pointx, pointy])
+                visited2[pointx][pointy] = 1
+                color2 = colorlist[pointx][pointy]
+                break
+        if len(stacklist2) != 0:
+            break
+                
 print(count1, count2)
-
-
-
-
+# print("time: ", time.time()-start)
 
